@@ -246,8 +246,7 @@
     </div>
 
     <script>
-        // --- CONFIGURACIÓN DE IMÁGENES LOCALES PARA GITHUB PAGES ---
-        // Asegúrate de que los archivos rosie.png, coca.png y politica.png estén en la misma carpeta que este index.html
+        // --- CONFIGURACIÓN DE IMÁGENES LOCALES ---
         const IMG_URLS = {
             rosie: 'rosie.png', 
             coca: 'coca.png',
@@ -283,7 +282,6 @@
         let exitMesh = null;
         let artMeshes = {}; 
         
-        // --- CORRECCIÓN: Se agrega la declaración faltante de hotspots ---
         const hotspots = []; 
 
         const textureLoader = new THREE.TextureLoader();
@@ -392,18 +390,27 @@
             createWall(0, 6, 0, 20, 1, 20, new THREE.MeshBasicMaterial({color:0x111111}));
 
             // OBRAS
-            // 1. Rosie (Guerra)
+            
+            // 1. Rosie (Guerra) - Sala Izquierda
             createArtDisplay({ text: "We Can Do It!", color: "#FFCC00" }, new THREE.Vector3(-9.4, 2, -5), Math.PI/2, 'rosie', {w:2.2, h:3});
-            createHotspot(new THREE.Vector3(-9, 2.5, -5.5), "El Músculo", "Símbolo de fuerza femenina.", 1);
-            createHotspot(new THREE.Vector3(-9, 3.2, -5), "El Lema", "'We' (Nosotras) implica unidad colectiva.", 1);
-            // 2. Coca-Cola (Comercial)
+            // Hotspots con contenido extendido
+            createHotspot(new THREE.Vector3(-9, 2.5, -5.5), "El Músculo", "Esta mujer no es frágil: es fuerte. El gesto del brazo flexionado se convirtió en un símbolo universal de poder femenino.", 1);
+            createHotspot(new THREE.Vector3(-9, 3.2, -5), "El Lema", "El uso de 'We' (Nosotras) crea unidad. No dice 'You can do it', dice 'NOSOTRAS podemos', implicando solidaridad.", 1);
+            createHotspot(new THREE.Vector3(-9, 1.5, -4.5), "Contexto (IEEAS)", "<b>Intención:</b> Reclutar mano de obra femenina en fábricas.<br><b>Emoción:</b> Orgullo y capacidad.<br><b>Contexto:</b> Segunda Guerra Mundial.", 1);
+
+            // 2. Coca-Cola (Comercial) - Sala Frente
             createArtDisplay({ text: "DESTAPA FELICIDAD", color: "#CC0000" }, new THREE.Vector3(0, 2, -9.4), 0, 'coca', {w:2.5, h:3.5});
-            createHotspot(new THREE.Vector3(-0.8, 2.5, -9), "Fiesta", "Venta de pertenencia social.", 2);
-            createHotspot(new THREE.Vector3(0.8, 1.5, -9), "Producto", "La botella como llave a la felicidad.", 2);
-            // 3. Política (Ataque)
+            // Hotspots con contenido extendido
+            createHotspot(new THREE.Vector3(-0.8, 2.5, -9), "Fiesta y Confeti", "La imagen muestra celebración y amigos. No te venden una bebida azucarada, te venden el ser el alma de la fiesta.", 2);
+            createHotspot(new THREE.Vector3(0.8, 1.5, -9), "El Brindis", "Todos conectan sus botellas en el centro. El producto es el nexo de unión que hace posible la amistad.", 2);
+            createHotspot(new THREE.Vector3(0, 1, -9), "Contexto", "<b>Intención:</b> Vender estilo de vida.<br><b>Técnica:</b> Transferencia (asociar el producto con diversión social).", 2);
+
+            // 3. Política (Ataque) - Sala Derecha
             createArtDisplay({ text: "¡PELIGRO: ARTURO!", color: "#550000" }, new THREE.Vector3(9.4, 2, 5), -Math.PI/2, 'politica', {w:2.2, h:3.2});
-            createHotspot(new THREE.Vector3(9, 3, 5), "Miedo", "Palabras alarmistas para paralizar la lógica.", 3);
-            createHotspot(new THREE.Vector3(9, 2, 5.5), "Rostro", "Foto manipulada para generar rechazo.", 3);
+            // Hotspots con contenido extendido
+            createHotspot(new THREE.Vector3(9, 3, 5), "¡DESTRUYA TU FUTURO!", "El texto en mayúsculas y palabras alarmistas ('Peligro', 'Arruinarán') buscan paralizar el pensamiento racional mediante el miedo.", 3);
+            createHotspot(new THREE.Vector3(9, 2, 5.5), "El Rostro de Arturo", "La foto en blanco y negro, granulada y seria, está editada para que el candidato parezca siniestro o amenazante.", 3);
+            createHotspot(new THREE.Vector3(9, 1.2, 4.5), "Contexto", "<b>Intención:</b> Disuadir el voto hacia Arturo.<br><b>Emoción:</b> Miedo a la pérdida económica.<br><b>Técnica:</b> Campaña de ataque.", 3);
 
             // Salida
             createExit();
@@ -435,7 +442,6 @@
             const mesh = new THREE.Mesh(new THREE.SphereGeometry(0.15), new THREE.MeshBasicMaterial({color: 0x00ffcc}));
             mesh.position.copy(pos); mesh.userData = {type:'hotspot', title, desc, roomId};
             scene.add(mesh); 
-            // Esto causaba el error si hotspots no estaba definido
             hotspots.push(mesh); 
         }
 
@@ -473,7 +479,8 @@
 
         function openModal(title, content) {
             document.getElementById('modal-title').innerText = title;
-            document.getElementById('modal-content').innerText = content;
+            // Corrección aquí: usar innerHTML para que renderice las etiquetas
+            document.getElementById('modal-content').innerHTML = content;
             document.getElementById('info-modal').style.display = 'flex';
             isModalOpen = true;
             document.exitPointerLock();
