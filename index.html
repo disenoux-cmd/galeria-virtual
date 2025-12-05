@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>La Galería de la Propaganda</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&family=Roboto+Slab:wght@300;400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&family=Roboto+Slab:wght@300;400;700&family=Orbitron:wght@400;700&display=swap');
 
         body {
             margin: 0;
@@ -15,6 +15,69 @@
             color: #f0f0f0;
         }
 
+        /* --- HUD GAMER --- */
+        #hud-container {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 300px;
+            padding: 15px;
+            background: rgba(0, 20, 40, 0.8);
+            border: 1px solid #00ccff;
+            border-left: 5px solid #00ccff;
+            z-index: 5;
+            font-family: 'Orbitron', sans-serif;
+            clip-path: polygon(0 0, 100% 0, 100% 85%, 90% 100%, 0 100%);
+            transition: all 0.3s;
+        }
+
+        #hud-title {
+            font-size: 12px;
+            color: #00ccff;
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+        }
+
+        #hud-counter {
+            font-size: 24px;
+            color: #fff;
+            font-weight: bold;
+        }
+
+        #hud-bar-bg {
+            width: 100%;
+            height: 8px;
+            background: #111;
+            margin-top: 10px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        #hud-bar-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #00ccff, #00ff99);
+            box-shadow: 0 0 10px #00ff99;
+            transition: width 0.5s cubic-bezier(0.1, 1.5, 0.6, 1);
+        }
+
+        #exit-notification {
+            position: absolute;
+            top: 15%;
+            width: 100%;
+            text-align: center;
+            font-family: 'Orbitron', sans-serif;
+            color: #00ff00;
+            font-size: 32px;
+            font-weight: bold;
+            text-shadow: 0 0 20px #00ff00;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.5s;
+            z-index: 6;
+        }
+
+        /* --- PANTALLAS Y MENÚS --- */
         #blocker {
             position: absolute;
             width: 100%;
@@ -184,6 +247,16 @@
 </head>
 <body>
 
+    <!-- HUD GAMER -->
+    <div id="hud-container">
+        <div id="hud-title">OBJETIVOS DE INTELIGENCIA</div>
+        <div id="hud-counter">0 / 9 ENCONTRADOS</div>
+        <div id="hud-bar-bg"><div id="hud-bar-fill"></div></div>
+    </div>
+
+    <!-- NOTIFICACIÓN DE SALIDA -->
+    <div id="exit-notification">¡SALIDA DESBLOQUEADA!</div>
+
     <div id="crosshair"></div>
     <div id="interact-msg">Click para interactuar</div>
 
@@ -193,7 +266,7 @@
             <h1>La Galería de la Propaganda</h1>
             <p>
                 Bienvenido, detective. <br>
-                La propaganda busca influir en tus emociones. Explora las 3 salas, analiza las técnicas y al final, elige una para tu informe.
+                La propaganda busca influir en tus emociones. Para completar tu entrenamiento, debes encontrar y analizar <strong>9 pistas de persuasión</strong> ocultas en estas obras.
             </p>
             
             <div id="loading-bar-container">
@@ -219,7 +292,7 @@
     <div id="final-selection-ui" class="modal-overlay">
         <div class="modal-content-box">
             <h1>Análisis Final</h1>
-            <p>Has completado el recorrido. ¿Qué pieza elegirás para tu análisis profundo?</p>
+            <p>Has encontrado todas las pistas. ¿Qué pieza elegirás para tu análisis profundo?</p>
             <div class="card-container">
                 <div class="choice-card" onclick="showFinalExplanation('Rosie')">
                     <h3>Rosie the Riveter</h3><p style="font-size:12px; color:#888;">Propaganda de Guerra</p>
@@ -253,20 +326,10 @@
             politica: 'politica.png'
         };
 
-        // --- TEXTOS DE EXPLICACIÓN FINAL ---
         const FINAL_EXPLANATIONS = {
-            'Rosie': `
-                <strong>Tipo:</strong> Propaganda de Guerra y Movilización Nacional.<br><br>
-                <strong>Análisis Profundo:</strong> Esta pieza es un ejemplo maestro de cómo la propaganda puede redefinir roles sociales en tiempos de crisis. "Rosie" no solo vendía un trabajo; vendía una identidad patriótica. Al fusionar feminidad con fuerza física ("El Músculo") y utilizar el pronombre colectivo "We" ("Nosotras"), transformó el trabajo industrial, tradicionalmente masculino, en un deber cívico y un acto de empoderamiento femenino esencial para la victoria nacional. No es información; es una llamada emocional a la acción colectiva frente a un enemigo común.
-            `,
-            'Cola': `
-                <strong>Tipo:</strong> Propaganda Comercial y Asociación Emocional.<br><br>
-                <strong>Análisis Profundo:</strong> La publicidad moderna rara vez vende las características físicas del producto. En su lugar, vende intangibles. Esta pieza es un caso de libro de texto de condicionamiento emocional. Al eliminar casi cualquier referencia al sabor o ingredientes y centrarse exclusivamente en imágenes de alegría social, juventud y pertenencia, la marca busca "secuestrar" estas emociones positivas. El objetivo es que, subconscientemente, el consumidor asocie la simple acción de abrir una botella con el acceso a un estado idealizado de felicidad y conexión humana.
-            `,
-            'Politica': `
-                <strong>Tipo:</strong> Propaganda Política de Ataque y Polarización.<br><br>
-                <strong>Análisis Profundo:</strong> Esta es la forma más agresiva de persuasión: la "campaña negativa". Su objetivo no es promover las virtudes propias, sino destruir la imagen del oponente para disuadir el voto. Utiliza palabras gatillo como "PELIGRO" y "DESTRUIR" para inducir un estado de miedo y ansiedad, lo que a menudo anula el pensamiento crítico racional. La manipulación visual (imagen oscura, granulada, rostro serio) está diseñada para evocar una respuesta visceral de desconfianza y rechazo antes de que el espectador pueda siquiera procesar cualquier argumento lógico.
-            `
+            'Rosie': `<strong>Tipo:</strong> Propaganda de Guerra.<br><br><strong>Análisis:</strong> Esta pieza redefine roles sociales en crisis. "Rosie" vende identidad patriótica, fusionando feminidad con fuerza y usando "We" para crear unidad colectiva frente a un enemigo común.`,
+            'Cola': `<strong>Tipo:</strong> Propaganda Comercial.<br><br><strong>Análisis:</strong> Vende intangibles. Elimina características del producto para secuestrar emociones de alegría y pertenencia, asociando la marca con un estado idealizado de felicidad social.`,
+            'Politica': `<strong>Tipo:</strong> Propaganda de Ataque.<br><br><strong>Análisis:</strong> Busca destruir al oponente mediante el miedo. Usa palabras gatillo ("PELIGRO") y manipulación visual (oscuridad) para anular el pensamiento crítico e inducir rechazo visceral.`
         };
 
         // --- THREE.JS APP ---
@@ -278,11 +341,13 @@
         
         let isModalOpen = false;
         let exitUnlocked = false;
-        let visited = { 1: false, 2: false, 3: false };
         let exitMesh = null;
         let artMeshes = {}; 
         
-        const hotspots = []; 
+        const hotspots = [];
+        // Nuevo sistema de progreso
+        const totalSecrets = 9;
+        let foundSecrets = new Set(); // Usamos un Set para guardar IDs únicos
 
         const textureLoader = new THREE.TextureLoader();
 
@@ -365,18 +430,10 @@
             };
 
             keys.forEach(key => {
-                textureLoader.load(
-                    IMG_URLS[key],
-                    (tex) => {
-                        if(artMeshes[key]) artMeshes[key].material.map = tex;
-                        updateProgress();
-                    },
-                    undefined,
-                    () => {
-                        // El error visual se ignora (aparecerá fallback), pero completamos el progreso
-                        updateProgress();
-                    }
-                );
+                textureLoader.load(IMG_URLS[key], (tex) => {
+                    if(artMeshes[key]) artMeshes[key].material.map = tex;
+                    updateProgress();
+                }, undefined, () => updateProgress());
             });
         }
 
@@ -387,32 +444,46 @@
             const wallMat = new THREE.MeshStandardMaterial({color: 0x333333});
             createWall(0, 3, -10, 20, 6, 1, wallMat); createWall(0, 3, 10, 20, 6, 1, wallMat);
             createWall(-10, 3, 0, 1, 6, 20, wallMat); createWall(10, 3, 0, 1, 6, 20, wallMat);
-            createWall(0, 6, 0, 20, 1, 20, new THREE.MeshBasicMaterial({color:0x111111}));
+            // Techo
+            createWall(0, 6, 0, 20, 1, 20, new THREE.MeshBasicMaterial({color:0x050505}));
 
-            // OBRAS
+            // --- LUCES DECORATIVAS EN EL TECHO ---
+            const lightGeo = new THREE.CylinderGeometry(0.2, 0.1, 0.2, 16);
+            const lightMat = new THREE.MeshBasicMaterial({color: 0xffffcc});
+            // Crear una rejilla de 3x3 luces
+            for(let x = -8; x <= 8; x += 8) {
+                for(let z = -8; z <= 8; z += 8) {
+                    const fixture = new THREE.Mesh(lightGeo, lightMat);
+                    fixture.position.set(x, 5.9, z);
+                    scene.add(fixture);
+                    
+                    // Añadir luz tenue real debajo de cada fixture
+                    const ptLight = new THREE.PointLight(0xffffcc, 0.3, 10);
+                    ptLight.position.set(x, 5.5, z);
+                    scene.add(ptLight);
+                }
+            }
+
+            // OBRAS & HOTSPOTS (Ahora con IDs únicos 1-9)
             
-            // 1. Rosie (Guerra) - Sala Izquierda
+            // 1. Rosie
             createArtDisplay({ text: "We Can Do It!", color: "#FFCC00" }, new THREE.Vector3(-9.4, 2, -5), Math.PI/2, 'rosie', {w:2.2, h:3});
-            // Hotspots con contenido extendido
-            createHotspot(new THREE.Vector3(-9, 2.5, -5.5), "El Músculo", "Esta mujer no es frágil: es fuerte. El gesto del brazo flexionado se convirtió en un símbolo universal de poder femenino.", 1);
-            createHotspot(new THREE.Vector3(-9, 3.2, -5), "El Lema", "El uso de 'We' (Nosotras) crea unidad. No dice 'You can do it', dice 'NOSOTRAS podemos', implicando solidaridad.", 1);
-            createHotspot(new THREE.Vector3(-9, 1.5, -4.5), "Contexto (IEEAS)", "<b>Intención:</b> Reclutar mano de obra femenina en fábricas.<br><b>Emoción:</b> Orgullo y capacidad.<br><b>Contexto:</b> Segunda Guerra Mundial.", 1);
+            createHotspot(new THREE.Vector3(-9, 2.5, -5.5), "El Músculo", "Esta mujer no es frágil: es fuerte.", 1);
+            createHotspot(new THREE.Vector3(-9, 3.2, -5), "El Lema", "El uso de 'We' (Nosotras) crea unidad.", 2);
+            createHotspot(new THREE.Vector3(-9, 1.5, -4.5), "Contexto", "<b>Intención:</b> Reclutar mano de obra femenina.", 3);
 
-            // 2. Coca-Cola (Comercial) - Sala Frente
+            // 2. Coca-Cola
             createArtDisplay({ text: "DESTAPA FELICIDAD", color: "#CC0000" }, new THREE.Vector3(0, 2, -9.4), 0, 'coca', {w:2.5, h:3.5});
-            // Hotspots con contenido extendido
-            createHotspot(new THREE.Vector3(-0.8, 2.5, -9), "Fiesta y Confeti", "La imagen muestra celebración y amigos. No te venden una bebida azucarada, te venden el ser el alma de la fiesta.", 2);
-            createHotspot(new THREE.Vector3(0.8, 1.5, -9), "El Brindis", "Todos conectan sus botellas en el centro. El producto es el nexo de unión que hace posible la amistad.", 2);
-            createHotspot(new THREE.Vector3(0, 1, -9), "Contexto", "<b>Intención:</b> Vender estilo de vida.<br><b>Técnica:</b> Transferencia (asociar el producto con diversión social).", 2);
+            createHotspot(new THREE.Vector3(-0.8, 2.5, -9), "Fiesta", "No te venden una bebida, te venden ser el alma de la fiesta.", 4);
+            createHotspot(new THREE.Vector3(0.8, 1.5, -9), "El Brindis", "El producto es el nexo de unión de la amistad.", 5);
+            createHotspot(new THREE.Vector3(0, 1, -9), "Contexto", "<b>Técnica:</b> Transferencia emocional.", 6);
 
-            // 3. Política (Ataque) - Sala Derecha
+            // 3. Política
             createArtDisplay({ text: "¡PELIGRO: ARTURO!", color: "#550000" }, new THREE.Vector3(9.4, 2, 5), -Math.PI/2, 'politica', {w:2.2, h:3.2});
-            // Hotspots con contenido extendido
-            createHotspot(new THREE.Vector3(9, 3, 5), "¡DESTRUYA TU FUTURO!", "El texto en mayúsculas y palabras alarmistas ('Peligro', 'Arruinarán') buscan paralizar el pensamiento racional mediante el miedo.", 3);
-            createHotspot(new THREE.Vector3(9, 2, 5.5), "El Rostro de Arturo", "La foto en blanco y negro, granulada y seria, está editada para que el candidato parezca siniestro o amenazante.", 3);
-            createHotspot(new THREE.Vector3(9, 1.2, 4.5), "Contexto", "<b>Intención:</b> Disuadir el voto hacia Arturo.<br><b>Emoción:</b> Miedo a la pérdida económica.<br><b>Técnica:</b> Campaña de ataque.", 3);
+            createHotspot(new THREE.Vector3(9, 3, 5), "Miedo", "Palabras alarmistas para paralizar la lógica.", 7);
+            createHotspot(new THREE.Vector3(9, 2, 5.5), "Rostro", "Foto manipulada para generar rechazo.", 8);
+            createHotspot(new THREE.Vector3(9, 1.2, 4.5), "Contexto", "<b>Emoción:</b> Miedo a la pérdida económica.", 9);
 
-            // Salida
             createExit();
         }
 
@@ -422,7 +493,6 @@
         }
 
         function createArtDisplay(fallbackData, pos, rotY, id, size) {
-            // Marco y Lienzo Fallback
             const frame = new THREE.Mesh(new THREE.BoxGeometry(size.w+0.2, size.h+0.2, 0.1), new THREE.MeshStandardMaterial({color:0x111111}));
             frame.position.copy(pos); frame.rotation.y = rotY; scene.add(frame);
             const canvas = document.createElement('canvas'); canvas.width = 512; canvas.height = 700;
@@ -438,16 +508,17 @@
             spot.target = mesh; spot.angle = 0.5; spot.penumbra = 0.5; scene.add(spot);
         }
 
-        function createHotspot(pos, title, desc, roomId) {
+        function createHotspot(pos, title, desc, id) {
             const mesh = new THREE.Mesh(new THREE.SphereGeometry(0.15), new THREE.MeshBasicMaterial({color: 0x00ffcc}));
-            mesh.position.copy(pos); mesh.userData = {type:'hotspot', title, desc, roomId};
+            mesh.position.copy(pos); 
+            // Guardamos el ID único para tracking
+            mesh.userData = {type:'hotspot', title, desc, id: id};
             scene.add(mesh); 
             hotspots.push(mesh); 
         }
 
         function createExit() {
             const geo = new THREE.BoxGeometry(2,3,0.1);
-            // Material emisivo para que brille
             const mat = new THREE.MeshStandardMaterial({color: 0x00ff00, emissive: 0x00ff00, emissiveIntensity: 0.5});
             exitMesh = new THREE.Mesh(geo, mat);
             exitMesh.position.set(0, 1.5, 9);
@@ -465,11 +536,18 @@
                 const obj = hits[0].object;
                 if(obj.userData.type === 'hotspot') {
                     openModal(obj.userData.title, obj.userData.desc);
-                    visited[obj.userData.roomId] = true;
+                    
+                    // --- LÓGICA DE PROGRESO ---
+                    if(!foundSecrets.has(obj.userData.id)) {
+                        foundSecrets.add(obj.userData.id);
+                        updateHUD();
+                        // Cambio visual: poner la esfera gris una vez visitada
+                        obj.material.color.setHex(0x555555);
+                    }
                     checkExit();
+                    
                 } else if(obj.userData.type === 'exit' && exitMesh.visible) {
                     document.exitPointerLock();
-                    // Mostrar UI de selección final
                     document.getElementById('blocker').style.display = 'none';
                     document.getElementById('final-selection-ui').style.display = 'flex';
                     exitUnlocked = true;
@@ -477,9 +555,27 @@
             }
         }
 
+        function updateHUD() {
+            const count = foundSecrets.size;
+            document.getElementById('hud-counter').innerText = `${count} / ${totalSecrets} ENCONTRADOS`;
+            const pct = (count / totalSecrets) * 100;
+            document.getElementById('hud-bar-fill').style.width = pct + '%';
+        }
+
+        function checkExit() {
+            if(foundSecrets.size === totalSecrets) {
+                if(!exitMesh.visible) {
+                    exitMesh.visible = true;
+                    // Notificación visual grande
+                    const notif = document.getElementById('exit-notification');
+                    notif.style.opacity = 1;
+                    setTimeout(() => { notif.style.opacity = 0; }, 4000);
+                }
+            }
+        }
+
         function openModal(title, content) {
             document.getElementById('modal-title').innerText = title;
-            // Corrección aquí: usar innerHTML para que renderice las etiquetas
             document.getElementById('modal-content').innerHTML = content;
             document.getElementById('info-modal').style.display = 'flex';
             isModalOpen = true;
@@ -492,17 +588,8 @@
             controls.lock();
         }
 
-        function checkExit() {
-            if(visited[1] && visited[2] && visited[3]) {
-                exitMesh.visible = true;
-            }
-        }
-
-        // Función global para mostrar la explicación final
         window.showFinalExplanation = (choiceKey) => {
             const titleMap = { 'Rosie': 'Rosie the Riveter', 'Cola': 'Destapa la Felicidad', 'Politica': 'Candidato Arturo' };
-            
-            // Ocultar selección y mostrar placa final
             document.getElementById('final-selection-ui').style.display = 'none';
             document.getElementById('plaque-title').innerText = titleMap[choiceKey];
             document.getElementById('plaque-content').innerHTML = FINAL_EXPLANATIONS[choiceKey];
@@ -513,13 +600,20 @@
             requestAnimationFrame(animate);
             const time = performance.now();
             
-            // Animación de la puerta de salida
             if(exitMesh && exitMesh.visible) {
-                // Rotación suave
                 exitMesh.rotation.y = Math.sin(time * 0.001) * 0.2;
-                // Pulsación de luz
                 exitMesh.material.emissiveIntensity = 0.5 + Math.sin(time * 0.003) * 0.3;
             }
+
+            // Animar hotspots no visitados
+            hotspots.forEach(h => {
+                if(!foundSecrets.has(h.userData.id)) {
+                    const scale = 1 + Math.sin(time * 0.005) * 0.2;
+                    h.scale.set(scale, scale, scale);
+                } else {
+                    h.scale.set(1,1,1);
+                }
+            });
 
             if(controls.isLocked) {
                 const delta = (time - prevTime) / 1000;
